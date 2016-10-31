@@ -1,5 +1,6 @@
 
 #include <math.h>
+#include <stdio.h>
 
 #define PI (M_PI)
 #define DEG2RAD (PI / 180)
@@ -60,6 +61,16 @@ double getSiderealTime(double J, double lw) {
 	return th0 + th1 * (J - J2000) - lw;
 }
 
+double getAzimuth(double th, double a, double phi, double d) {
+	double H = th - a;
+	return atan2(sin(H), cos(H) * sin(phi) - tan(d) * cos(phi));
+}
+
+double getAltitude(double th, double a, double phi, double d) {
+	double H = th - a;
+	return asin(sin(phi) * sin(d) + cos(phi) * cos(d) * cos(d));
+}
+
 int getSunPosition(sun_pos* pos, int timestamp, double latitude, double longtitude) {
 	if (pos == NULL) return -1;
 
@@ -75,8 +86,8 @@ int getSunPosition(sun_pos* pos, int timestamp, double latitude, double longtitu
 	double th = getSiderealTime(J, lw);
 
 	// TODO
-	pos.azimuth
-
+	pos->azimuth = getAzimuth(th, a, phi, d);
+	pos->altitude = getAltitude(th, a, phi, d);
 
 	return 0;
 }
@@ -87,4 +98,21 @@ void setup() {
 
 void loop() {
 	//
+}
+
+int main(int argc, char const *argv[])
+{
+	// coordinaten van remmers' huis (google maps)
+	long lat = 53.181634;
+	long lng = 6.541645;
+	
+
+	sun_pos pos;
+
+	unsigned long int tijd = 1477923093;
+
+
+	getSunPosition(&pos, tijd, lat, lng);
+
+	printf("Azimuth: %.4f, Altitude: %.4f\n", pos.azimuth, pos.altitude);
 }
