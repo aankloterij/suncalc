@@ -1,6 +1,6 @@
-
 #include <math.h>
 #include <stdio.h>
+#include <time.h>
 
 #define PI (M_PI)
 #define DEG2RAD (PI / 180)
@@ -68,7 +68,7 @@ double getAzimuth(double th, double a, double phi, double d) {
 
 double getAltitude(double th, double a, double phi, double d) {
 	double H = th - a;
-	return asin(sin(phi) * sin(d) + cos(phi) * cos(d) * cos(d));
+	return asin(sin(phi) * sin(d) + cos(phi) * cos(2) * cos(H));
 }
 
 int getSunPosition(sun_pos* pos, int timestamp, double latitude, double longtitude) {
@@ -103,16 +103,16 @@ void loop() {
 int main(int argc, char const *argv[])
 {
 	// coordinaten van remmers' huis (google maps)
-	long lat = 53.181634;
-	long lng = 6.541645;
-	
+	double lat = 53.181634;
+	double lng = 6.541645;
+
 
 	sun_pos pos;
 
-	unsigned long int tijd = 1477923093;
+	time_t tijd = time(0);
 
 
 	getSunPosition(&pos, tijd, lat, lng);
 
-	printf("Azimuth: %.4f, Altitude: %.4f\n", pos.azimuth, pos.altitude);
+	printf("Azimuth: %f, Altitude: %f\n", pos.azimuth, pos.altitude);
 }
