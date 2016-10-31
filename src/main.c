@@ -4,6 +4,7 @@
 
 #define PI (M_PI)
 #define DEG2RAD (PI / 180)
+#define RAD2DEG (180 / PI)
 #define SECONDS_IN_DAY ((double) (24 * 3600))
 
 typedef struct {
@@ -34,7 +35,7 @@ double M0 = 357.5291 * DEG2RAD,
 
 
 double timestampToJulianDate(int timestamp) {
-	return timestamp / SECONDS_IN_DAY;
+	return timestamp / SECONDS_IN_DAY + J1970 - 0.5;
 }
 
 double getSolarMeanAnomaly(double Js) {
@@ -68,7 +69,7 @@ double getAzimuth(double th, double a, double phi, double d) {
 
 double getAltitude(double th, double a, double phi, double d) {
 	double H = th - a;
-	return asin(sin(phi) * sin(d) + cos(phi) * cos(2) * cos(H));
+	return asin(sin(phi) * sin(d) + cos(phi) * cos(d) * cos(H));
 }
 
 int getSunPosition(sun_pos* pos, int timestamp, double latitude, double longtitude) {
@@ -86,8 +87,8 @@ int getSunPosition(sun_pos* pos, int timestamp, double latitude, double longtitu
 	double th = getSiderealTime(J, lw);
 
 	// TODO
-	pos->azimuth = getAzimuth(th, a, phi, d);
-	pos->altitude = getAltitude(th, a, phi, d);
+	pos->azimuth = getAzimuth(th, a, phi, d) * RAD2DEG + 180;
+	pos->altitude = getAltitude(th, a, phi, d) * RAD2DEG;
 
 	return 0;
 }
@@ -115,4 +116,6 @@ int main(int argc, char const *argv[])
 	getSunPosition(&pos, tijd, lat, lng);
 
 	printf("Azimuth: %f, Altitude: %f\n", pos.azimuth, pos.altitude);
+
+	return 0;
 }
