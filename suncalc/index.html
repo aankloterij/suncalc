@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Sun Calc</title>
+	<script src="suncalc.js"></script> <!-- www.suncalc.net-->
+
+	<style>
+		h3 { font-family: monospace; }
+
+		#azimuth:before { content: "azimuth: "; }
+		#altitude:before { content: "altitude: "; }
+	</style>
+</head>
+<body>
+	<h3 id="azimuth">...</h6>
+	<h3 id="altitude">...</h6>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript">
+	// coordinaten van remmers' huis (google maps)
+	var lat = 53.181634;
+	var long = 6.541645;
+
+	// omrekeningsfactor om van radialen naar graden te gaan
+	var rad2deg = 180 / Math.PI;
+
+	var azi = $('#azimuth'),
+		alt = $('#altitude');
+
+	var interval = setInterval(function () {
+
+		var d = new Date();
+
+		var pos = SunCalc.getSunPosition(d, lat, long);
+
+		pos.azimuth = pos.azimuth * rad2deg + 180;
+		pos.altitude = pos.altitude * rad2deg;
+
+		azi.text(pos.azimuth);
+		alt.text(pos.altitude);
+
+	}, 1000);
+	</script>
+</body>
+</html>
