@@ -1,6 +1,11 @@
+#define PC // build for PC (for testing)
+
 #include <math.h>
-#include <stdio.h>
-#include <time.h>
+
+#ifdef PC
+	#include <stdio.h>
+	#include <time.h>
+#endif
 
 #define PI (M_PI)
 #define DEG2RAD (PI / 180)
@@ -73,7 +78,7 @@ double getAltitude(double th, double a, double phi, double d) {
 }
 
 int getSunPosition(sun_pos* pos, int timestamp, double latitude, double longtitude) {
-	if (pos == NULL) return -1;
+	if (pos == 0) return -1;
 
 	double J = timestampToJulianDate(timestamp);
 	double phi = latitude * DEG2RAD;
@@ -101,6 +106,8 @@ void loop() {
 	//
 }
 
+#ifdef PC
+
 int main(int argc, char const *argv[])
 {
 	// coordinaten van remmers' huis (google maps)
@@ -119,3 +126,5 @@ int main(int argc, char const *argv[])
 
 	return 0;
 }
+
+#endif // #ifdef PC
