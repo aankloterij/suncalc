@@ -6,6 +6,7 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <time.h>
+	#include <string.h>
 #endif
 
 #define PI (M_PI)
@@ -121,46 +122,59 @@ void loop() {
 
 #ifdef PC
 
-void genPlotStats() {
-	int time = 1481608800; // 13 december 2016, 7 uur 's ochtends
+// coordinaten van remmers' huis (google maps)
+double lat = 53.181634;
+double lng = 6.541645;
+
+struct direction basePanelPos;
+
+void printPlotStats(int time) {
 
 	struct direction sun;
-	struct direction base;
-	struct direction panel;
-
-	FILE *fs = fopen("sunpos.txt", "w");
-	FILE *fp = fopen("panpos.txt", "w");
 
 	int rising = 1;
+	int loops = 0;
 
 	do {
 
 		if (getSunPosition(&sun, time, 53.181634, 6.541645) != 0) break;
-		if (getPanelPosition(&panel, &sun, &base) != 0) break;
 
 		if (sun.altitude > 0) {
-			fprintf(fs, "%f\t%f\t%f\n", sin(sun.azimuth * DEG2RAD), sin(sun.altitude * DEG2RAD), cos(sun.azimuth * DEG2RAD));
-			fprintf(fp, "%f\t%f\t%f\n", sin(panel.azimuth * DEG2RAD), sin(panel.altitude * DEG2RAD	), cos(panel.azimuth * DEG2RAD));
+			printf("%f\t%f\t%f\n", sin(sun.azimuth * DEG2RAD), sin(sun.altitude * DEG2RAD), cos(sun.azimuth * DEG2RAD));
 		}
 
 		time += 100;
 
 		if (sun.altitude > 0) rising = 0;
 
-	} while (sun.altitude > 0 || rising);
+		if (loops > SECONDS_IN_DAY / 100) break; // voor als de zon in die dag niet op gaat, geen inf loop
 
-	fclose(fs);
-	fclose(fp);
+		loops++;
+
+	} while (sun.altitude > 0 || rising);
+}
+
+void printSunInfo() {
+
+	struct direction sunPos;
+
+	time_t tijd = time(0);
+
+	if (getSunPosition(&sunPos, tijd, lat, lng) != 0) return;
+
+	printf("\nSun position\n");
+	printf("Azimuth: %f, Altitude: %f\n", sunPos.azimuth, sunPos.altitude);
+
+	struct direction panelPos;
+
+	if (getPanelPosition(&panelPos, &sunPos, &basePanelPos) != 0) return;
+
+	printf("\nPaneel stand:\n");
+	printf("Azimuth: %f, Altitude: %f\n", panelPos.azimuth, panelPos.altitude);
 }
 
 int main(int argc, char const *argv[])
 {
-	// coordinaten van remmers' huis (google maps)
-	double lat = 53.181634;
-	double lng = 6.541645;
-
-	struct direction basePanelPos;
-
 	// Hoek die je vanaf het noorden met de klok mee moet draaien
 	// om in de richting van de panelen te kijken.
 	basePanelPos.azimuth = 90;
@@ -169,23 +183,15 @@ int main(int argc, char const *argv[])
 	// hoogte van de panelen te kijken.
 	basePanelPos.altitude = 20;
 
-	struct direction sunPos;
+	if (argc == 3 && strcmp("-t", argv[2])) {
+		int startTime = (int) strtol(argv[2], (char **)NULL, 0);
 
-	time_t tijd = time(0);
+		printPlotStats(startTime);
 
-	if (getSunPosition(&sunPos, tijd, lat, lng) != 0) return 1;
+		return 0;
+	}
 
-	printf("\nSun position\n");
-	printf("Azimuth: %f, Altitude: %f\n", sunPos.azimuth, sunPos.altitude);
-
-	struct direction panelPos;
-
-	if (getPanelPosition(&panelPos, &sunPos, &basePanelPos) != 0) return 1;
-
-	printf("\nPaneel stand:\n");
-	printf("Azimuth: %f, Altitude: %f\n", panelPos.azimuth, panelPos.altitude);
-
-	genPlotStats();
+	printSunInfo();
 
 	return 0;
 }
