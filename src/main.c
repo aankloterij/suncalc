@@ -4,6 +4,7 @@
 
 #ifdef PC
 	#include <stdio.h>
+	#include <stdlib.h>
 	#include <time.h>
 #endif
 
@@ -12,10 +13,10 @@
 #define RAD2DEG (180 / PI)
 #define SECONDS_IN_DAY ((double) (24 * 3600))
 
-typedef struct {
+struct direction {
 	double azimuth;
 	double altitude;
-} sun_pos;
+};
 
 int J1970 = 2440588,
 	J2000 = 2451545;
@@ -77,7 +78,7 @@ double getAltitude(double th, double a, double phi, double d) {
 	return asin(sin(phi) * sin(d) + cos(phi) * cos(d) * cos(H));
 }
 
-int getSunPosition(sun_pos* pos, int timestamp, double latitude, double longtitude) {
+int getSunPosition(struct direction* pos, int timestamp, double latitude, double longtitude) {
 	if (pos == 0) return -1;
 
 	double J = timestampToJulianDate(timestamp);
@@ -98,6 +99,18 @@ int getSunPosition(sun_pos* pos, int timestamp, double latitude, double longtitu
 	return 0;
 }
 
+int getPanelPosition(struct direction* panel, struct direction* sun, struct direction* base) {
+
+	if (sun == 0 || base == 0) return 1;
+
+	// De hoek waaron de spiegel moet staan komt overeen met het gemiddelde
+	// van de zon-hoek, en de hoek waarop de spiegel recht op de panelen schijnt.
+	panel->azimuth = (sun->azimuth + base->azimuth) / 2;
+	panel->altitude = (sun->altitude + base->altitude) / 2;
+
+	return 0;
+}
+
 void setup() {
 	//
 }
@@ -108,21 +121,69 @@ void loop() {
 
 #ifdef PC
 
+void genPlotStats() {
+	int time = 1481608800; // 13 december 2016, 7 uur 's ochtends
+
+	struct direction sun;
+	struct direction base;
+	struct direction panel;
+
+	FILE *fs = fopen("sunpos.txt", "w");
+	FILE *fp = fopen("panpos.txt", "w");
+
+	int rising = 1;
+
+	do {
+
+		if (getSunPosition(&sun, time, 53.181634, 6.541645) != 0) break;
+		if (getPanelPosition(&panel, &sun, &base) != 0) break;
+
+		fprintf(fs, "%d\t%f\t%f\n", time, sun.altitude, sun.azimuth);
+		fprintf(fp, "%d\t%f\t%f\n", time, panel.altitude, panel.azimuth);
+
+		time += 100;
+
+		if (sun.altitude > 0) rising = 0;
+
+	} while (sun.altitude > 0 || rising);
+
+	fclose(fs);
+	fclose(fp);
+}
+
 int main(int argc, char const *argv[])
 {
 	// coordinaten van remmers' huis (google maps)
 	double lat = 53.181634;
 	double lng = 6.541645;
 
+	struct direction basePanelPos;
 
-	sun_pos pos;
+	// Hoek die je vanaf het noorden met de klok mee moet draaien
+	// om in de richting van de panelen te kijken.
+	basePanelPos.azimuth = 90;
+
+	// Hoek die je omhoog vanaf de horizon moet kijken om op de
+	// hoogte van de panelen te kijken.
+	basePanelPos.altitude = 20;
+
+	struct direction sunPos;
 
 	time_t tijd = time(0);
 
+	if (getSunPosition(&sunPos, tijd, lat, lng) != 0) return 1;
 
-	getSunPosition(&pos, tijd, lat, lng);
+	printf("\nSun position\n");
+	printf("Azimuth: %f, Altitude: %f\n", sunPos.azimuth, sunPos.altitude);
 
-	printf("Azimuth: %f, Altitude: %f\n", pos.azimuth, pos.altitude);
+	struct direction panelPos;
+
+	if (getPanelPosition(&panelPos, &sunPos, &basePanelPos) != 0) return 1;
+
+	printf("\nPaneel stand:\n");
+	printf("Azimuth: %f, Altitude: %f\n", panelPos.azimuth, panelPos.altitude);
+
+	genPlotStats();
 
 	return 0;
 }
