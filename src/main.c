@@ -138,8 +138,10 @@ void genPlotStats() {
 		if (getSunPosition(&sun, time, 53.181634, 6.541645) != 0) break;
 		if (getPanelPosition(&panel, &sun, &base) != 0) break;
 
-		fprintf(fs, "%d\t%f\t%f\n", time, sun.altitude, sun.azimuth);
-		fprintf(fp, "%d\t%f\t%f\n", time, panel.altitude, panel.azimuth);
+		if (sun.altitude > 0) {
+			fprintf(fs, "%f\t%f\t%f\n", sin(sun.azimuth * DEG2RAD), sin(sun.altitude * DEG2RAD), cos(sun.azimuth * DEG2RAD));
+			fprintf(fp, "%f\t%f\t%f\n", sin(panel.azimuth * DEG2RAD), sin(panel.altitude * DEG2RAD	), cos(panel.azimuth * DEG2RAD));
+		}
 
 		time += 100;
 
