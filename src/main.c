@@ -154,6 +154,14 @@ void printPlotStats(int time) {
 	} while (sun.altitude > 0 || rising);
 }
 
+void printCurrentPlot(int time) {
+	struct direction sunpos;
+
+	if (getSunPosition(&sunpos, time, lat, lng) != 0) return;
+
+	printf("%f\t%f\t%f", sin(sunpos.azimuth * DEG2RAD), sin(sunpos.altitude * DEG2RAD), cos(sunpos.azimuth * DEG2RAD));
+}
+
 void printSunInfo() {
 
 	struct direction sunPos;
@@ -183,10 +191,18 @@ int main(int argc, char const *argv[])
 	// hoogte van de panelen te kijken.
 	basePanelPos.altitude = 20;
 
-	if (argc == 3 && strcmp("-t", argv[2])) {
+	if (argc == 3 && strcmp("-c", argv[1]) == 0) {
 		int startTime = (int) strtol(argv[2], (char **)NULL, 0);
 
 		printPlotStats(startTime);
+
+		return 0;
+	}
+
+	if (argc == 3 && strcmp("-t", argv[1]) == 0) {
+		int currentTime = (int) strtol(argv[2], (char **)NULL, 0);
+
+		printCurrentPlot(currentTime);
 
 		return 0;
 	}
