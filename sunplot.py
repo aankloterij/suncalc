@@ -9,7 +9,7 @@ def getCurrentTime():
 	return int(time.time())
 
 def command(command):
-	print(command)
+	print("Executing '%s' ..." % command)
 	return subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.readlines()
 
 def getCurrentSunPos():
@@ -36,10 +36,12 @@ cx, cy, cz = getCurrentSunPos()
 figure = plt.figure()
 
 ax = figure.add_subplot(111, projection='3d')
+ax.axis('equal')
 
 ax.scatter(0, 0, 0, color='green') # remmers' huis
 ax.plot(xvals, zvals, yvals)
 liveSun = ax.scatter(cx, cz, cy, color='red', s=60)
+
 
 ax.set_xlabel("X")
 ax.set_ylabel("Z")

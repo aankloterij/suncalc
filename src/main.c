@@ -102,7 +102,7 @@ int getSunPosition(struct direction* pos, int timestamp, double latitude, double
 
 int getPanelPosition(struct direction* panel, struct direction* sun, struct direction* base) {
 
-	if (sun == 0 || base == 0) return 1;
+	if (sun == 0 || base == 0) return -1;
 
 	// De hoek waaron de spiegel moet staan komt overeen met het gemiddelde
 	// van de zon-hoek, en de hoek waarop de spiegel recht op de panelen schijnt.
@@ -123,7 +123,7 @@ void loop() {
 #ifdef PC
 
 struct coordinates {
-	double x,y,z;
+	double x, y, z;
 };
 
 // coordinaten van remmers' huis (google maps)
@@ -134,13 +134,14 @@ struct direction basePanelPos;
 
 
 int getCoordinatesForSun(struct coordinates *coords, struct direction *sun) {
+
 	if (sun == 0) return -1;
 
 	coords->x = sin(sun->azimuth * DEG2RAD) * cos(sun->altitude * DEG2RAD);
 	coords->y = sin(sun->altitude * DEG2RAD);
 	coords->z = cos(sun->azimuth * DEG2RAD) * cos(sun->altitude * DEG2RAD);
 
-	return 0;	
+	return 0;
 }
 
 void printPlotStats(int time) {
@@ -153,13 +154,13 @@ void printPlotStats(int time) {
 
 	do {
 
-		if (getSunPosition(&sun, time, 53.181634, 6.541645) != 0 && getCoordinatesForSun(&coords, &sun) != 0) break;
+		if (getSunPosition(&sun, time, lat, lng) != 0 || getCoordinatesForSun(&coords, &sun) != 0) break;
 
 		if (sun.altitude > 0) {
 			printf("%f\t%f\t%f\n", coords.x, coords.y, coords.z);
 		}
 
-		time += 100;
+		time += 100; // zelfde getal als in dat SECONDS_IN_DAY / <getal> hieronder..
 
 		if (sun.altitude > 0) rising = 0;
 
@@ -170,13 +171,13 @@ void printPlotStats(int time) {
 	} while (sun.altitude > 0 || rising);
 }
 
-void printCurrentPlot(int time) {
+void printCurrentPlotStats(int time) {
 	struct direction sun;
 	struct coordinates coords;
 
-	if (getSunPosition(&sun, time, lat, lng) != 0 && getCoordinatesForSun(&coords, &sun) != 0) return;
+	if (getSunPosition(&sun, time, lat, lng) != 0 || getCoordinatesForSun(&coords, &sun) != 0) return;
 
-	printf("%f\t%f\t%f", coords.x, coords.y, coords.z);
+	printf("%f\t%f\t%f\n", coords.x, coords.y, coords.z);
 }
 
 
@@ -220,7 +221,7 @@ int main(int argc, char const *argv[])
 	if (argc == 3 && strcmp("-c", argv[1]) == 0) {
 		int currentTime = (int) strtol(argv[2], (char **)NULL, 0);
 
-		printCurrentPlot(currentTime);
+		printCurrentPlotStats(currentTime);
 
 		return 0;
 	}
