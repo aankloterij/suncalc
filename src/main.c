@@ -191,7 +191,7 @@ int main(int argc, char const *argv[])
 	// hoogte van de panelen te kijken.
 	basePanelPos.altitude = 20;
 
-	if (argc == 3 && strcmp("-c", argv[1]) == 0) {
+	if (argc == 3 && strcmp("-t", argv[1]) == 0) {
 		int startTime = (int) strtol(argv[2], (char **)NULL, 0);
 
 		printPlotStats(startTime);
@@ -199,7 +199,7 @@ int main(int argc, char const *argv[])
 		return 0;
 	}
 
-	if (argc == 3 && strcmp("-t", argv[1]) == 0) {
+	if (argc == 3 && strcmp("-c", argv[1]) == 0) {
 		int currentTime = (int) strtol(argv[2], (char **)NULL, 0);
 
 		printCurrentPlot(currentTime);

@@ -1,5 +1,5 @@
-from matplotlib import pyplot
-import pylab
+from matplotlib import pyplot as plt
+import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
 import datetime
 import subprocess
@@ -8,20 +8,21 @@ import time
 def getCurrentTime():
 	return int(time.time())
 
+def command(command):
+	print(command)
+	return subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.readlines()
+
 def getCurrentSunPos():
-	sunpos = subprocess.Popen("bin/suncalc -c %d", getCurrentTime(), shell=True, stdout=subprocess.PIPE).stdout.readlines()
+	sunpos = command("bin/suncalc -c %d" % getCurrentTime())
 
 	x, y, z = sunpos[0].decode("utf-8").strip().split("\t");
 
-	return x, y, z
-
-fig = pylab.figure()
-ax = Axes3D(fig)
+	return float(x), float(y), float(z)
 
 xvals, yvals, zvals = [], [], []
 
 now = datetime.date.today().strftime("%s")
-data = subprocess.Popen("bin/suncalc -t %d".format(now), shell=True, stdout=subprocess.PIPE).stdout.readlines()
+data = command("bin/suncalc -t %s" % now)
 
 for line in data:
 	x, y, z = line.decode("utf-8").strip().split('\t')
@@ -30,29 +31,18 @@ for line in data:
 	yvals.append(float(y))
 	zvals.append(float(z))
 
-# Positie remmers' huis
-xvals.append(0)
-yvals.append(0)
-zvals.append(0)
-
-
-ax.scatter(xvals, zvals, yvals)
-
 cx, cy, cz = getCurrentSunPos()
 
-liveSun = ax.scatter(cx, cz, cx)
+figure = plt.figure()
+
+ax = figure.add_subplot(111, projection='3d')
+
+ax.scatter(0, 0, 0, color='green') # remmers' huis
+ax.plot(xvals, zvals, yvals)
+liveSun = ax.scatter(cx, cz, cy, color='red', s=60)
 
 ax.set_xlabel("X")
 ax.set_ylabel("Z")
 ax.set_zlabel("Y")
 
-pyplot.show()
-
-while True:
-	sleep(5)
-
-	nx, ny, nz = getCurrentSunPos()
-
-	liveSun.set_xdata(nx)
-	liveSun.set_zdata(ny)
-	liveSun.set_ydata(nz)
+plt.show()
