@@ -122,25 +122,41 @@ void loop() {
 
 #ifdef PC
 
+struct coordinates {
+	double x,y,z;
+};
+
 // coordinaten van remmers' huis (google maps)
 double lat = 53.181634;
 double lng = 6.541645;
 
 struct direction basePanelPos;
 
+
+int getCoordinatesForSun(struct coordinates *coords, struct direction *sun) {
+	if (sun == 0) return -1;
+
+	coords->x = sin(sun->azimuth * DEG2RAD) * cos(sun->altitude * DEG2RAD);
+	coords->y = sin(sun->altitude * DEG2RAD);
+	coords->z = cos(sun->azimuth * DEG2RAD) * cos(sun->altitude * DEG2RAD);
+
+	return 0;	
+}
+
 void printPlotStats(int time) {
 
 	struct direction sun;
+	struct coordinates coords;
 
 	int rising = 1;
 	int loops = 0;
 
 	do {
 
-		if (getSunPosition(&sun, time, 53.181634, 6.541645) != 0) break;
+		if (getSunPosition(&sun, time, 53.181634, 6.541645) != 0 && getCoordinatesForSun(&coords, &sun) != 0) break;
 
 		if (sun.altitude > 0) {
-			printf("%f\t%f\t%f\n", sin(sun.azimuth * DEG2RAD), sin(sun.altitude * DEG2RAD), cos(sun.azimuth * DEG2RAD));
+			printf("%f\t%f\t%f\n", coords.x, coords.y, coords.z);
 		}
 
 		time += 100;
@@ -155,12 +171,14 @@ void printPlotStats(int time) {
 }
 
 void printCurrentPlot(int time) {
-	struct direction sunpos;
+	struct direction sun;
+	struct coordinates coords;
 
-	if (getSunPosition(&sunpos, time, lat, lng) != 0) return;
+	if (getSunPosition(&sun, time, lat, lng) != 0 && getCoordinatesForSun(&coords, &sun) != 0) return;
 
-	printf("%f\t%f\t%f", sin(sunpos.azimuth * DEG2RAD), sin(sunpos.altitude * DEG2RAD), cos(sunpos.azimuth * DEG2RAD));
+	printf("%f\t%f\t%f", coords.x, coords.y, coords.z);
 }
+
 
 void printSunInfo() {
 
