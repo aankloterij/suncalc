@@ -42,10 +42,25 @@ ax.axis('equal')
 
 ax.scatter(0, 0, 0, color='green') # remmers' huis
 ax.plot(xvals, zvals, yvals)
-liveSun = ax.scatter(cx, cz, cy, color='red', s=60)
+
+liveSun = figure.add_subplot(112, projection='3d')
+liveSun.scatter(cx, cz, cy, color='red', s=60)
+
+print(liveSun)
 
 ax.set_xlabel("X")
 ax.set_ylabel("Z")
 ax.set_zlabel("Y")
 
 plt.draw()
+
+while True:
+
+	time.sleep(10)
+
+	liveSun.clear()
+
+	cx, cy, cz = getCurrentSunPos()
+
+	liveSun = figure.add_subplot(112, projection='3d')
+	liveSun.scatter(cx, cz, cy, color='red', s=60)
