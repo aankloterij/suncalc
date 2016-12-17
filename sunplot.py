@@ -43,7 +43,7 @@ ax.axis('equal')
 ax.scatter(0, 0, 0, color='green') # remmers' huis
 ax.plot(xvals, zvals, yvals)
 
-liveSun = figure.add_subplot(112, projection='3d')
+liveSun = figure.add_subplot(112, sharex=ax)
 liveSun.scatter(cx, cz, cy, color='red', s=60)
 
 print(liveSun)
@@ -62,5 +62,5 @@ while True:
 
 	cx, cy, cz = getCurrentSunPos()
 
-	liveSun = figure.add_subplot(112, projection='3d')
+	liveSun = figure.add_subplot(112, sharex=ax)
 	liveSun.scatter(cx, cz, cy, color='red', s=60)
