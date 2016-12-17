@@ -33,6 +33,8 @@ for line in data:
 
 cx, cy, cz = getCurrentSunPos()
 
+plt.ion()
+
 figure = plt.figure()
 
 ax = figure.add_subplot(111, projection='3d')
@@ -42,9 +44,8 @@ ax.scatter(0, 0, 0, color='green') # remmers' huis
 ax.plot(xvals, zvals, yvals)
 liveSun = ax.scatter(cx, cz, cy, color='red', s=60)
 
-
 ax.set_xlabel("X")
 ax.set_ylabel("Z")
 ax.set_zlabel("Y")
 
-plt.show()
+plt.draw()
