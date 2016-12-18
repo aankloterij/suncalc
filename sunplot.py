@@ -39,12 +39,16 @@ cx, cy, cz = getCurrentSunPos()
 
 figure = plt.figure()
 
+figure.suptitle("Positie van de zon op %s" % datetime.datetime.now().strftime("%H:%M %d %b, %Y"), fontsize=14)
+
 ax = figure.add_subplot(111, projection='3d')
 ax.axis('equal')
 
-ax.scatter(0, 0, 0, color='green') # remmers' huis
-ax.plot(xvals, zvals, yvals) # zon curve
-liveSun = ax.scatter(cx, cz, cy, color='red', s=60) # current zon
+remmers = ax.scatter(0, 0, 0, color='green', label='Positie van remmers\' huis') # remmers' huis
+sunLine = ax.plot(xvals, zvals, yvals, label='Traject van de zon') # zon curve
+liveSun = ax.scatter(cx, cz, cy, color='red', s=60, label='Huidige positie van de zon') # current zon
+
+plt.legend()
 
 ax.set_xlabel("X")
 ax.set_ylabel("Z")
