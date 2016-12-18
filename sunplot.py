@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from matplotlib import pyplot as plt
 import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
@@ -33,7 +35,7 @@ for line in data:
 
 cx, cy, cz = getCurrentSunPos()
 
-plt.ion()
+# plt.ion()
 
 figure = plt.figure()
 
@@ -41,26 +43,11 @@ ax = figure.add_subplot(111, projection='3d')
 ax.axis('equal')
 
 ax.scatter(0, 0, 0, color='green') # remmers' huis
-ax.plot(xvals, zvals, yvals)
-
-liveSun = figure.add_subplot(112, sharex=ax)
-liveSun.scatter(cx, cz, cy, color='red', s=60)
-
-print(liveSun)
+ax.plot(xvals, zvals, yvals) # zon curve
+liveSun = ax.scatter(cx, cz, cy, color='red', s=60) # current zon
 
 ax.set_xlabel("X")
 ax.set_ylabel("Z")
 ax.set_zlabel("Y")
 
-plt.draw()
-
-while True:
-
-	time.sleep(10)
-
-	liveSun.clear()
-
-	cx, cy, cz = getCurrentSunPos()
-
-	liveSun = figure.add_subplot(112, sharex=ax)
-	liveSun.scatter(cx, cz, cy, color='red', s=60)
+plt.show()
