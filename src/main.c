@@ -7,7 +7,10 @@
 	#include <string.h>
 #endif
 
+#ifndef PI
 #define PI (M_PI)
+#endif
+
 #define DEG2RAD (PI / 180)
 #define RAD2DEG (180 / PI)
 #define SECONDS_IN_DAY ((double) (24 * 3600))
@@ -198,7 +201,17 @@ void printSunInfo() {
 	printf("Azimuth: %f, Altitude: %f\n", panelPos.azimuth, panelPos.altitude);
 }
 
-int main(int argc, char const *argv[])
+int getParamArg(const char *arg, int *value, int argc, const char *argv[]) {
+	if (argc == 3 && strcmp(arg, argv[1]) == 0) {
+		*value = (int) atoi(argv[2]);
+
+		return 0;
+	}
+
+	return -1;
+}
+
+int main(int argc, const char *argv[])
 {
 	// Hoek die je vanaf het noorden met de klok mee moet draaien
 	// om in de richting van de panelen te kijken.
@@ -208,20 +221,29 @@ int main(int argc, char const *argv[])
 	// hoogte van de panelen te kijken.
 	basePanelPos.altitude = 20;
 
-	if (argc == 3 && strcmp("-t", argv[1]) == 0) {
-		int startTime = (int) strtol(argv[2], (char **)NULL, 0);
+	int param;
 
-		printPlotStats(startTime);
+	if (getParamArg("-t", &param, argc, argv) == 0) {
+		printPlotStats(param);
 
 		return 0;
 	}
 
-	if (argc == 3 && strcmp("-c", argv[1]) == 0) {
-		int currentTime = (int) strtol(argv[2], (char **)NULL, 0);
-
-		printCurrentPlotStats(currentTime);
+	if (getParamArg("-c", &param, argc, argv) == 0) {
+		printCurrentPlotStats(param);
 
 		return 0;
+	}
+
+	if (getParamArg("-p", &param, argc, argv) == 0) {
+		struct direction sun;
+		struct direction panel;
+
+		if (getSunPosition(&sun, param, lat, lng) == 0 && getPanelPosition(&panel, &sun, &basePanelPos) == 0) {
+			printf("%f\t%f\n", panel.azimuth, panel.altitude);
+
+			return 0;
+		}
 	}
 
 	printSunInfo();
@@ -229,4 +251,4 @@ int main(int argc, char const *argv[])
 	return 0;
 }
 
-#endif // #ifdef PC
+#endif // #ifndef Arduino_h
