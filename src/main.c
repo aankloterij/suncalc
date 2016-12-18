@@ -1,8 +1,6 @@
-#define PC // build for PC (for testing)
-
 #include <math.h>
 
-#ifdef PC
+#ifndef Arduino_h
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <time.h>
@@ -120,7 +118,7 @@ void loop() {
 	//
 }
 
-#ifdef PC
+#ifndef Arduino_h
 
 struct coordinates {
 	double x, y, z;
