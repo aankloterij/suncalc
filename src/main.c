@@ -186,7 +186,7 @@ int getCoordinatesForSun(struct coordinates *coords, struct direction *sun) {
  * Geef een timestamp van het begin van een dag (12 uur 's nachts)
  * om de curve van een hele dag te krijgen.
  *
- * @param time timestamp waarvanaf geplot moet worden
+ * @param time timestamp waar vanaf geplot moet worden
  */
 void printPlotStats(int time) {
 
@@ -306,7 +306,9 @@ int main(int argc, char *const *argv)
 				return -1;
 
 			default:
-				// print usage, maar fck dat lol
+				// Hier zouden we usage kunnen printen, maar gezien dit geen
+				// public code is, slaan we dit over omdat we onze tijd
+				// beter kunnen gebruiken.
 				return -1;
 		}
 	}
