@@ -158,7 +158,7 @@ void printPlotStats(int time) {
 		if (getSunPosition(&sun, time, lat, lng) != 0 || getCoordinatesForSun(&coords, &sun) != 0) break;
 
 		if (sun.altitude > 0) {
-			printf("%f\t%f\t%f\n", coords.x, coords.y, coords.z);
+			printf("%f\t%f\t%f\t%d\n", coords.x, coords.y, coords.z, time);
 		}
 
 		time += 100; // zelfde getal als in dat SECONDS_IN_DAY / <getal> hieronder..

@@ -27,7 +27,7 @@ now = datetime.date.today().strftime("%s")
 data = command("bin/suncalc -t %s" % now)
 
 for line in data:
-	x, y, z = line.decode("utf-8").strip().split('\t')
+	x, y, z, timestampvoorshit = line.decode("utf-8").strip().split('\t')
 
 	xvals.append(float(x))
 	yvals.append(float(y))
