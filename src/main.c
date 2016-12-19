@@ -86,6 +86,18 @@ double getAltitude(double th, double a, double phi, double d) {
 	return asin(sin(phi) * sin(d) + cos(phi) * cos(d) * cos(H));
 }
 
+/**
+ * Rekent de positie van de zon uit op de manier waarop suncalc dit doet.
+ *
+ * @see suncalc.net
+ *
+ * @param  pos        struct waarin de hoek komt
+ * @param  timestamp  UNIX timestamp voor het moment waar de hoek wordt uitgerekend
+ * @param  latitude   breedtegraad
+ * @param  longtitude lengtegraad
+ *
+ * @return            -1 als er geen lege richtingsstruct mee is gegeven, 0 op success
+ */
 int getSunPosition(struct direction* pos, int timestamp, double latitude, double longtitude) {
 	if (pos == 0) return -1;
 
@@ -107,6 +119,17 @@ int getSunPosition(struct direction* pos, int timestamp, double latitude, double
 	return 0;
 }
 
+/**
+ * Rekent de positie uit die het paneel moet aannemen aan de hand van
+ * een hoek waaronder de zon schijnt
+ *
+ * @param  panel lege "direction" struct waarin azimuth en altitude komen
+ * @param  sun   struct met hoek waaronder de zon op een gegeven moment schijnt
+ * @param  base  De hoek waaronder het paneel stationair staat, aangenomen dat
+ *               de normaal precies in het noorden op de horizon ligt.
+ *
+ * @return       0 op success, -1 als er parameters ontbreken
+ */
 int getPanelPosition(struct direction* panel, struct direction* sun, struct direction* base) {
 
 	if (sun == 0 || base == 0) return -1;
@@ -135,7 +158,14 @@ struct coordinates {
 
 struct direction basePanelPos;
 
-
+/**
+ * Rekent een azimuth, altitude richting om naar x, y, z coordinaten
+ *
+ * @param  coords lege struct waarin x, y, z coordinaten komen
+ * @param  sun    direction struct met azimuth en altitude richting.
+ *
+ * @return        0 voor success, -1 als er geen richting is gegeven.
+ */
 int getCoordinatesForSun(struct coordinates *coords, struct direction *sun) {
 
 	if (sun == 0) return -1;
@@ -147,6 +177,17 @@ int getCoordinatesForSun(struct coordinates *coords, struct direction *sun) {
 	return 0;
 }
 
+/**
+ * Print een reeks met gegevens in het formaat
+ * x, y, z, timestamp
+ * vanaf de gegeven timestamp. Print alleen gegevens
+ * zolang altitude > 0, dus als de zon op is.
+ *
+ * Geef een timestamp van het begin van een dag (12 uur 's nachts)
+ * om de curve van een hele dag te krijgen.
+ *
+ * @param time timestamp waarvanaf geplot moet worden
+ */
 void printPlotStats(int time) {
 
 	struct direction sun;
@@ -174,6 +215,11 @@ void printPlotStats(int time) {
 	} while (sun.altitude > 0 || rising);
 }
 
+/**
+ * Print x, y, z coordinaten voor een gegeven timestamp.
+ *
+ * @param time timestamp waarvoor coordinaten geprint moeten worden
+ */
 void printCurrentPlotStats(int time) {
 	struct direction sun;
 	struct coordinates coords;
@@ -183,7 +229,13 @@ void printCurrentPlotStats(int time) {
 	printf("%f\t%f\t%f\n", coords.x, coords.y, coords.z);
 }
 
-
+/**
+ * Print informatie over de zon die kan worden gebruikt om
+ * te testen of het script nog goed werkt. Zou hetzelfde
+ * resultaat moeten leveren als suncalc-web.
+ *
+ * @see ../suncalc-web/
+ */
 void printSunInfo() {
 
 	struct direction sunPos;
@@ -201,16 +253,6 @@ void printSunInfo() {
 
 	printf("\nPaneel stand:\n");
 	printf("Azimuth: %f, Altitude: %f\n", panelPos.azimuth, panelPos.altitude);
-}
-
-int getParamArg(const char *arg, int *value, int argc, const char *argv[]) {
-	if (argc == 3 && strcmp(arg, argv[1]) == 0) {
-		*value = (int) atoi(argv[2]);
-
-		return 0;
-	}
-
-	return -1;
 }
 
 int main(int argc, char *const *argv)
@@ -232,16 +274,29 @@ int main(int argc, char *const *argv)
 
 		switch (opt) {
 			case 't':
+				// Print een lijst met x, y, z, timestamp gegevens, vanaf de
+				// timestamp, alleen waneer altitude > 0 Geef dus een
+				// timestamp 's nachts aan het begin van de dag, zodat de zon
+				// nog op moet komen, en dan krijg je gegevens van het moment
+				// dat de zon op komt, tot dat hij ondergaat.
 				printPlotStats(given_time);
 
 				return 0;
 
 			case 'c':
+				// Print alleen de x, y, z (geen timestamp) voor de gegeven timestamp
+				// Bij -t wordt wel een timestamp gegeven, omdat python dit nodig
+				// heeft om de datum voor een filmpje te maken (@see imggen.py)
+				// Dit maakt het wel wat inconsistent met parsen, maar dat is
+				// nou eenmaal niet anders..
 				printCurrentPlotStats(given_time);
 				return 0;
 
 			case 'p':
-
+				// Print alleen de azimuth, altitude met de standen die het
+				// paneel aan moet nemen. Dit wordt uiteindelijk gebruikt in
+				// het script dat de positie doorgeeft via een serial aan de
+				// arduino.
 				if (getSunPosition(&sun, given_time, lat, lng) == 0 && getPanelPosition(&panel, &sun, &basePanelPos) == 0) {
 					printf("%f\t%f\n", panel.azimuth, panel.altitude);
 
@@ -256,6 +311,11 @@ int main(int argc, char *const *argv)
 		}
 	}
 
+	// Geen speciale opties gegeven, dus dump gewoon de informatie over
+	// de zon, om te controleren of het script nog goed werkt in vergelijking
+	// met de originele suncalc
+	// (@see suncalc-web/index.html)
+	// (@see suncalc-web/suncalc.js)
 	printSunInfo();
 
 	return 0;
