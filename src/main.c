@@ -5,6 +5,7 @@
 	#include <stdlib.h>
 	#include <time.h>
 	#include <string.h>
+	#include <unistd.h>
 #endif
 
 #ifndef PI
@@ -22,6 +23,11 @@ struct direction {
 
 int J1970 = 2440588,
 	J2000 = 2451545;
+
+
+// coordinaten van remmers' huis (google maps)
+double lat = 53.181634;
+double lng = 6.541645;
 
 double M0 = 357.5291 * DEG2RAD,
 	M1 = 0.98560028 * DEG2RAD,
@@ -127,10 +133,6 @@ struct coordinates {
 	double x, y, z;
 };
 
-// coordinaten van remmers' huis (google maps)
-double lat = 53.181634;
-double lng = 6.541645;
-
 struct direction basePanelPos;
 
 
@@ -211,7 +213,7 @@ int getParamArg(const char *arg, int *value, int argc, const char *argv[]) {
 	return -1;
 }
 
-int main(int argc, const char *argv[])
+int main(int argc, char *const *argv)
 {
 	// Hoek die je vanaf het noorden met de klok mee moet draaien
 	// om in de richting van de panelen te kijken.
@@ -221,28 +223,36 @@ int main(int argc, const char *argv[])
 	// hoogte van de panelen te kijken.
 	basePanelPos.altitude = 20;
 
-	int param;
+	int opt, given_time;
+	struct direction sun;
+	struct direction panel;
 
-	if (getParamArg("-t", &param, argc, argv) == 0) {
-		printPlotStats(param);
+	while ((opt = getopt(argc, argv, "t:c:p:")) != -1) {
+		given_time = atoi(optarg);
 
-		return 0;
-	}
+		switch (opt) {
+			case 't':
+				printPlotStats(given_time);
 
-	if (getParamArg("-c", &param, argc, argv) == 0) {
-		printCurrentPlotStats(param);
+				return 0;
 
-		return 0;
-	}
+			case 'c':
+				printCurrentPlotStats(given_time);
+				return 0;
 
-	if (getParamArg("-p", &param, argc, argv) == 0) {
-		struct direction sun;
-		struct direction panel;
+			case 'p':
 
-		if (getSunPosition(&sun, param, lat, lng) == 0 && getPanelPosition(&panel, &sun, &basePanelPos) == 0) {
-			printf("%f\t%f\n", panel.azimuth, panel.altitude);
+				if (getSunPosition(&sun, given_time, lat, lng) == 0 && getPanelPosition(&panel, &sun, &basePanelPos) == 0) {
+					printf("%f\t%f\n", panel.azimuth, panel.altitude);
 
-			return 0;
+					return 0;
+				}
+
+				return -1;
+
+			default:
+				// print usage, maar fck dat lol
+				return -1;
 		}
 	}
 
