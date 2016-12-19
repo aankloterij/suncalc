@@ -6,10 +6,18 @@
 	#include <time.h>
 	#include <string.h>
 	#include <unistd.h>
+
+	#define SUNCALC_VERSION "v0.3.1"
 #endif
 
+// Een paar essentiele constants
+// die de arduino niet heeft op een of andere manier
 #ifndef PI
 #define PI (M_PI)
+#endif
+
+#ifndef NULL
+#define NULL 0x00
 #endif
 
 #define DEG2RAD (PI / 180)
@@ -96,10 +104,10 @@ double getAltitude(double th, double a, double phi, double d) {
  * @param  latitude   breedtegraad
  * @param  longtitude lengtegraad
  *
- * @return            -1 als er geen lege richtingsstruct mee is gegeven, 0 op success
+ * @return            -1 als er een lege richtingsstruct mee is gegeven, 0 op success
  */
 int getSunPosition(struct direction* pos, int timestamp, double latitude, double longtitude) {
-	if (pos == 0) return -1;
+	if(pos == NULL) return -1;
 
 	double J = timestampToJulianDate(timestamp);
 	double phi = latitude * DEG2RAD;
@@ -112,7 +120,6 @@ int getSunPosition(struct direction* pos, int timestamp, double latitude, double
 	double a = getRightAscension(Lsun);
 	double th = getSiderealTime(J, lw);
 
-	// TODO
 	pos->azimuth = getAzimuth(th, a, phi, d) * RAD2DEG + 180;
 	pos->altitude = getAltitude(th, a, phi, d) * RAD2DEG;
 
@@ -132,7 +139,7 @@ int getSunPosition(struct direction* pos, int timestamp, double latitude, double
  */
 int getPanelPosition(struct direction* panel, struct direction* sun, struct direction* base) {
 
-	if (sun == 0 || base == 0) return -1;
+	if(sun == NULL || base == NULL) return -1;
 
 	// De hoek waaron de spiegel moet staan komt overeen met het gemiddelde
 	// van de zon-hoek, en de hoek waarop de spiegel recht op de panelen schijnt.
@@ -168,7 +175,7 @@ struct direction basePanelPos;
  */
 int getCoordinatesForSun(struct coordinates *coords, struct direction *sun) {
 
-	if (sun == 0) return -1;
+	if (sun == NULL) return -1;
 
 	coords->x = sin(sun->azimuth * DEG2RAD) * cos(sun->altitude * DEG2RAD);
 	coords->y = sin(sun->altitude * DEG2RAD);
@@ -255,8 +262,25 @@ void printSunInfo() {
 	printf("Azimuth: %f, Altitude: %f\n", panelPos.azimuth, panelPos.altitude);
 }
 
-int main(int argc, char *const *argv)
-{
+void printUsage() {
+	printf("Usage: suncalc [-p timestamp] [-t timestamp] [-c timestamp]\n");
+	printf("\n");
+	printf("  -c                       hetzelfde als -t maar zonder timestamp\n");
+	printf("  -p                       print standen van paneel\n");
+	printf("  -t                       geef een lijst met x, y, z, timestamp gegevens\n");
+	printf("                           vanaf de gegeven timestamp totdat de zon onder gaat\n");
+	printf("  -h                       laat deze help zien en exit\n");
+	printf("  -v                       print de versie en exit\n");
+	printf("\n");
+	printf("Suncalc %s by Max Verbeek\n", SUNCALC_VERSION);
+	printf("Onderdeel van het profielwerkstuk <insert PWS vraag of haal deze regel weg>\n"); // TODO Kijk hier nog ff naar
+	printf("Zie https://github.com/aankloterij/suncalc voor de source code\n");
+}
+
+int main(int argc, char *const *argv) {
+	struct direction sun, panel;
+	int opt, given_time;
+
 	// Hoek die je vanaf het noorden met de klok mee moet draaien
 	// om in de richting van de panelen te kijken.
 	basePanelPos.azimuth = 90;
@@ -265,12 +289,17 @@ int main(int argc, char *const *argv)
 	// hoogte van de panelen te kijken.
 	basePanelPos.altitude = 20;
 
-	int opt, given_time;
-	struct direction sun;
-	struct direction panel;
+	while ((opt = getopt(argc, argv, "t:c:p:hv")) != -1) {
 
-	while ((opt = getopt(argc, argv, "t:c:p:")) != -1) {
-		given_time = atoi(optarg);
+		// Als geen argument is gegeven en we proberen iets te doen met optarg,
+		// krijgen we een mooie segfault aangezien optarg dan NULL is
+		// getopt geeft dan ook al aan 'option requires argument'
+		if(optarg != NULL) {
+			given_time = atoi(optarg);
+		} else if(opt != 'v' && opt != 'h') { // Als er geen timestamp is gegeven bij -v of -h is dat niet erg
+			printUsage();
+			exit(-1);
+		}
 
 		switch (opt) {
 			case 't':
@@ -305,10 +334,25 @@ int main(int argc, char *const *argv)
 
 				return -1;
 
+			case 'h':
+				// Print de help page als -h is gegeven
+				printUsage();
+
+				return 0;
+
+			case 'v':
+				// Print alleen de versie regel uit printUsage()
+				printf("Suncalc %s by Max Verbeek", SUNCALC_VERSION);
+
+				return 0;
+
 			default:
-				// Hier zouden we usage kunnen printen, maar gezien dit geen
-				// public code is, slaan we dit over omdat we onze tijd
-				// beter kunnen gebruiken.
+				// Print de help page als het argument niet herkend word
+				// getopt geeft ook al een mooie invalid option error, maar dit laat nog
+				// even duidelijk aan de gebruiker zien hoe het wel moet
+
+				printUsage();
+
 				return -1;
 		}
 	}
