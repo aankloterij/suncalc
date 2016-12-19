@@ -273,7 +273,9 @@ void printUsage() {
 	printf("  -v                       print de versie en exit\n");
 	printf("\n");
 	printf("Suncalc %s by Max Verbeek\n", SUNCALC_VERSION);
-	printf("Onderdeel van het profielwerkstuk <insert PWS vraag of haal deze regel weg>\n"); // TODO Kijk hier nog ff naar
+	
+	// TODO Kijk hier nog ff naar
+	printf("Onderdeel van het profielwerkstuk <insert PWS vraag of haal deze regel weg>\n");
 	printf("Zie https://github.com/aankloterij/suncalc voor de source code\n");
 }
 
@@ -293,7 +295,9 @@ int main(int argc, char *const *argv) {
 
 		// Als geen argument is gegeven en we proberen iets te doen met optarg,
 		// krijgen we een mooie segfault aangezien optarg dan NULL is
-		// getopt geeft dan ook al aan 'option requires argument'
+		// getopt geeft dan ook al aan 'option requires argument' maar
+		// we printen toch nog even de help page en exiten met -1 aangezien
+		// we niks kunnen als er geen argument is gegeven
 		if(optarg != NULL) {
 			given_time = atoi(optarg);
 		} else if(opt != 'v' && opt != 'h') { // Als er geen timestamp is gegeven bij -v of -h is dat niet erg
