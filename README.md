@@ -23,7 +23,7 @@ Usage: suncalc [-p timestamp] [-t timestamp] [-c timestamp]
                            vanaf de gegeven timestamp totdat de zon onder gaat
   -h                       laat deze help zien en exit
   -v                       print de versie en exit
-
+```
 
 #### `sunplot.py`
 Laat gegevens van `src/main.c` zien in een 3D grafiek met de huidige positie van de zon.
