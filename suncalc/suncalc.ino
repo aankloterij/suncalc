@@ -1,10 +1,17 @@
 char buffer[128];
-int read = 0;
+int read;
 
-
+/**
+ * @brief           Zet de zonnepanelen in het prototype in de juiste positie
+ *
+ * @todo            Stuur de motoren aan
+ *
+ * @param azimuth   De azimuth
+ * @param altitude  De altitude
+ */
 void fixPanel(double azimuth, double altitude) {
-  // fix
-  Serial.println("Fixing.. lol");
+
+  Serial.println("This is temporary");
 
   Serial.print(azimuth, DEC);
   Serial.print(altitude, DEC);
@@ -12,11 +19,11 @@ void fixPanel(double azimuth, double altitude) {
 }
 
 void setup() {
+  read = 0;
 
 	Serial.begin(9600);
-	while (!Serial) {
-		// wait
-	}
+
+	while(!Serial); // Volgensmij is dit niet nodig
 }
 
 void loop() {
@@ -25,11 +32,15 @@ void loop() {
 
        double azimuth, altitude;
 
+       // Parse de serial output en sla ze op in azimuth en altitude
        sscanf("%f\t%f", buffer, &azimuth, &altitude);
 
+       // Stuur de panelen aan
        fixPanel(azimuth, altitude);
 
-       memset(buffer, 0, sizeof(buffer)); // clean buffer
+       // Empty de buffer
+       memset(buffer, 0, sizeof(buffer));
+
        read = 0;
     }
 	}
