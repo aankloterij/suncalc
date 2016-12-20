@@ -13,6 +13,7 @@ void fixPanel(double azimuth, double altitude) {
   Serial.println("This is temporary");
 
   Serial.print(azimuth, DEC);
+  Serial.print("\t");
   Serial.print(altitude, DEC);
   Serial.print('\n');
 }

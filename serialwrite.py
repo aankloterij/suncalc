@@ -45,6 +45,9 @@ with serial.Serial("/dev/ttyACM0", 9600) as device:
 
     while True:
         data = command("bin/suncalc -p %d" % getCurrentTime())
-        device.write(("%s\n" % data).encode())
+
+        print(data[0])
+
+        device.write(data[0])
 
         time.sleep(5)
