@@ -15,7 +15,7 @@ all:
 install: all
 	cp bin/suncalc /usr/bin/suncalc
 
-filmpjes:
+filmpjes: all
 	# Maak de map plots voor als die nog niet bestaat, en zorg ervoor dat deze leeg is.
 	rm -rf plots && mkdir plots
 

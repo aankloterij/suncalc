@@ -17,7 +17,8 @@ Gebruik `make` om dit te compilen
 Hieronder is te zien hoe je het programma kan gebruiken (ook te zien met `bin/suncalc -h`)
 ```
 Usage: suncalc [-p timestamp] [-t timestamp] [-c timestamp]
-  -c                       hetzelfde als -t maar zonder timestamp
+  -c                       hetzelfde als -t maar zonder timestamp, en geeft maar 1
+                           resultaat voor gegeven tijd
   -p                       print standen van paneel
   -t                       geef een lijst met x, y, z, timestamp gegevens
                            vanaf de gegeven timestamp totdat de zon onder gaat

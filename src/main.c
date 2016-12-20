@@ -265,7 +265,8 @@ void printSunInfo() {
 void printUsage() {
 	printf("Usage: suncalc [-p timestamp] [-t timestamp] [-c timestamp]\n");
 	printf("\n");
-	printf("  -c                       hetzelfde als -t maar zonder timestamp\n");
+	printf("  -c                       hetzelfde als -t maar zonder timestamp, en geeft maar 1\n");
+	printf("                           resultaat voor gegeven tijd\n");
 	printf("  -p                       print standen van paneel\n");
 	printf("  -t                       geef een lijst met x, y, z, timestamp gegevens\n");
 	printf("                           vanaf de gegeven timestamp totdat de zon onder gaat\n");
@@ -273,9 +274,7 @@ void printUsage() {
 	printf("  -v                       print de versie en exit\n");
 	printf("\n");
 	printf("Suncalc %s by Max Verbeek\n", SUNCALC_VERSION);
-	
-	// TODO Kijk hier nog ff naar
-	printf("Onderdeel van het profielwerkstuk <insert PWS vraag of haal deze regel weg>\n");
+	printf("Onderdeel van het profielwerkstuk 'Zonnepaneelspiegel voor Remmers'\n");
 	printf("Zie https://github.com/aankloterij/suncalc voor de source code\n");
 }
 
