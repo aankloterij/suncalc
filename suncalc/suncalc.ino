@@ -1,5 +1,4 @@
 char buffer[128];
-int read;
 
 /**
  * @brief           Zet de zonnepanelen in het prototype in de juiste positie
@@ -25,23 +24,23 @@ void setup() {
 
 	while(!Serial); // Volgensmij is dit niet nodig
 }
-
+int cursor = 0;
 void loop() {
 	if (Serial.available()) {
-    if ((*(buffer + read++) = Serial.read()) == '\0') { // prop shit in buffer tot er een 0-byte is
+    byte incomming = Serial.read();
 
-       double azimuth, altitude;
+    if(incomming != '\n')
+      buffer[cursor++] = byte;
+    else {
+      double azimuth, altitude;
 
-       // Parse de serial output en sla ze op in azimuth en altitude
-       sscanf("%f\t%f", buffer, &azimuth, &altitude);
+      sscanf("%f\t%f", buffer, &azimuth, &altitude);
 
-       // Stuur de panelen aan
-       fixPanel(azimuth, altitude);
+      fixPanel(azimuth, altitude);
 
-       // Empty de buffer
-       memset(buffer, 0, sizeof(buffer));
+      cursor = 0;
 
-       read = 0;
+      memset(buffer, 0, sizeof(buffer));
     }
 	}
 }

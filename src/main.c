@@ -345,7 +345,7 @@ int main(int argc, char *const *argv) {
 
 			case 'v':
 				// Print alleen de versie regel uit printUsage()
-				printf("Suncalc %s by Max Verbeek", SUNCALC_VERSION);
+				printf("Suncalc %s by Max Verbeek\n", SUNCALC_VERSION);
 
 				return 0;
 

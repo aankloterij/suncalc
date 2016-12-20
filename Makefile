@@ -1,11 +1,11 @@
 CC=gcc
 
 # Dit is voor debugging, zodat debugging met gdb makkelijker word
-# CFLAGS=-Wall -Wextra -g
+CFLAGS=-Wall -Wextra -g
 
 # Dit wil je niet aan hebben tijdens het debuggen
 # want dan geeft hij geen warnings voor domme dingen
-CFLAGS=-O3
+# CFLAGS=-O3
 CLIBS=-lm
 
 all:
