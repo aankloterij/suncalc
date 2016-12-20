@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+import subprocess
+import time
 
 def getCurrentTime():
 	'''
