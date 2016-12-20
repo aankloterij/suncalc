@@ -18,20 +18,22 @@ void fixPanel(double azimuth, double altitude) {
 }
 
 void setup() {
-  read = 0;
 
 	Serial.begin(9600);
 
 	while(!Serial); // Volgensmij is dit niet nodig
 }
-int cursor = 0;
-void loop() {
-	if (Serial.available()) {
-    byte incomming = Serial.read();
 
-    if(incomming != '\n')
-      buffer[cursor++] = byte;
-    else {
+int cursor = 0;
+
+void loop() {
+  if (Serial.available()) {
+    byte incoming = Serial.read();
+
+    if(incoming != '\n') {
+      
+      buffer[cursor++] = incoming;
+    } else {
       double azimuth, altitude;
 
       sscanf("%f\t%f", buffer, &azimuth, &altitude);
@@ -42,5 +44,5 @@ void loop() {
 
       memset(buffer, 0, sizeof(buffer));
     }
-	}
+  }
 }
