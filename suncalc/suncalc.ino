@@ -1,15 +1,17 @@
 // suncalc - YoloSwag
 
+#include "Servo.h"
+
 // The size of the buffer
 #define BUFSIZE  128
 
 // The pins on which the data pins of the servos are attached
-#define SERVO_AZIMUTH 8
 #define SERVO_ALTITUDE 9
+#define SERVO_AZIMUTH 10
 
 // The initial position of the servos
-#define AZ_INIT_POS 0
-#define AL_INIT_POS 0
+#define AZ_INIT_POS 90
+#define AL_INIT_POS 20
 
 Servo az_servo, al_servo;
 double azimuth, altitude;
@@ -27,11 +29,15 @@ void resetPos() {
 	if(is_reset)
 		return;
 
-	for(int i = altitude; i > AZ_INIT_POS; i--)
+	for(int i = azimuth; i > AZ_INIT_POS; i--) { 
 		az_servo.write(i);
+                delay(10);
+        }
 
-	for(int i = azimuth; i > AL_INIT_POS; i--)
+	for(int i = altitude; i > AL_INIT_POS; i--) {
 		al_servo.write(i);
+                delay(10);
+        }
 }
 
 /**
@@ -68,7 +74,9 @@ void setup() {
 
 	Serial.begin(9600);
 
-	resetPos();
+	// resetPos();
+        al_servo.write(90);
+        az_servo.write(90);
 
 	while(!Serial);
 }
@@ -82,11 +90,10 @@ void loop() {
 		} else {
 			char *first_part = strtok_r(buffer, &delim, &strtokbuf);
 			char *second_part = strtok_r(0, &delim, &strtokbuf);
-
 			azimuth = atof(first_part);
 			altitude = atof(second_part);
 
-			fixPanel();
+			// fixPanel();
 
 			cursor = 0;
 
