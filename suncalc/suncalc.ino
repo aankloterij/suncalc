@@ -1,5 +1,44 @@
-char buffer[128];
-int cursor;
+// suncalc - YoloSwag
+
+#include "Servo.h"
+
+// The size of the buffer
+#define BUFSIZE  128
+
+// The pins on which the data pins of the servos are attached
+#define SERVO_ALTITUDE 9
+#define SERVO_AZIMUTH 10
+
+// The initial position of the servos
+#define AZ_INIT_POS 90
+#define AL_INIT_POS 20
+
+Servo az_servo, al_servo;
+double azimuth, altitude;
+char *strtokbuf, *buffer;
+int cursor = 0;
+bool is_reset = false;
+char delim = '\t';
+
+/**
+ * @brief           Reset de servos langzaam in de init position
+ */
+void resetPos() {
+
+	// Reset niet twee keer
+	if(is_reset)
+		return;
+
+	for(int i = azimuth; i > AZ_INIT_POS; i--) { 
+		az_servo.write(i);
+                delay(10);
+        }
+
+	for(int i = altitude; i > AL_INIT_POS; i--) {
+		al_servo.write(i);
+                delay(10);
+        }
+}
 
 /**
  * @brief           Zet de zonnepanelen in het prototype in de juiste positie
@@ -9,47 +48,57 @@ int cursor;
  * @param azimuth   De azimuth
  * @param altitude  De altitude
  */
-void fixPanel(double azimuth, double altitude) {
-  Serial.print(azimuth, DEC);
-  Serial.print("\t");
-  Serial.print(altitude, DEC);
-  Serial.print('\n');
+void fixPanel() {
+
+	// De zon is onder, reset de panels in de orginele positie
+	if(altitude < 0) {
+		resetPos();
+		is_reset = true;
+		return;
+	}
+
+	// Schrijf de posities naar de servo
+	az_servo.write(azimuth);
+	al_servo.write(altitude);
+
+	is_reset = false;
 }
 
-char delim = '\t';
-
-char *strtokbuf;
-
 void setup() {
-        cursor = 0;
-        
-        strtokbuf = (char *) malloc(128);
+	// Set the servo pins
+	az_servo.attach(SERVO_AZIMUTH);
+	al_servo.attach(SERVO_ALTITUDE);
+
+	strtokbuf = (char *) malloc(BUFSIZE);
+	buffer = (char *) malloc(BUFSIZE);
 
 	Serial.begin(9600);
 
-	while(!Serial); // Volgensmij is dit niet nodig
+	// resetPos();
+        al_servo.write(90);
+        az_servo.write(90);
+
+	while(!Serial);
 }
 
 void loop() {
-  if (Serial.available()) {
-    byte incoming = Serial.read();
+	if (Serial.available()) {
+		byte incoming = Serial.read();
 
-    if(incoming != '\n') {
-      buffer[cursor++] = incoming;
-    } else {
-      double azimuth, altitude;
-      
-      char *first_part = strtok_r(buffer, &delim, &strtokbuf);
-      char *second_part = strtok_r(0, &delim, &strtokbuf);
-      
-      azimuth = atof(first_part);
-      altitude = atof(second_part);
-      
-      fixPanel(azimuth, altitude);
+		if(incoming != '\n') {
+			buffer[cursor++] = incoming;
+		} else {
+			char *first_part = strtok_r(buffer, &delim, &strtokbuf);
+			char *second_part = strtok_r(0, &delim, &strtokbuf);
+			azimuth = atof(first_part);
+			altitude = atof(second_part);
 
-      cursor = 0;
+			// fixPanel();
 
-      memset(buffer, 0, sizeof(buffer));
-    }
-  }
+			cursor = 0;
+
+			memset(buffer, 0, sizeof(BUFSIZE));
+			memset(strtokbuf, 0, sizeof(BUFSIZE));
+		}
+	}
 }
