@@ -11,7 +11,7 @@ from suncalc_utils import *
 # over de gehele dag vormen. Gewoon een lijst met punten dus.
 xvals, yvals, zvals = [], [], []
 
-now = getCurrentTime() # Huidige timestamp
+now = int(datetime.date.today().strftime('%s')) # Huidige timestamp
 data = command("bin/suncalc -t %d" % now) # Veel regels data in het formaat x, y, z, timestamp.
 
 for line in data:
